@@ -1,4 +1,7 @@
+# 1 View with 1 person in a mirror
+
 from operator import imod
+
 import numpy as np
 from tqdm import tqdm
 from os.path import join

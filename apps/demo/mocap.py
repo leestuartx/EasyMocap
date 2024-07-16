@@ -69,7 +69,7 @@ def mocap_demo(path, mode, exp=None):
             opt_data += ' args.ranges {},{},{}'.format(*args.ranges)
         # config for experiment
         opt_exp = ' args.debug {}'.format('True' if args.debug else 'False')
-        cmd = 'python3 apps/fit/triangulate1p.py --cfg_data {cfg_data} --opt_data {opt_data} --cfg_exp {cfg_exp} --opt_exp {opt_exp}'.format(
+        cmd = 'python apps/fit/triangulate1p.py --cfg_data {cfg_data} --opt_data {opt_data} --cfg_exp {cfg_exp} --opt_exp {opt_exp}'.format(
             cfg_data=cfg_data,
             cfg_exp=cfg_exp,
             opt_data=opt_data,
@@ -77,7 +77,7 @@ def mocap_demo(path, mode, exp=None):
         )
         run_cmd(cmd)
         # compose videos
-        cmd = f'python3 -m easymocap.visualize.ffmpeg_wrapper {dir_k3d}/match --fps 50'
+        cmd = f'python -m easymocap.visualize.ffmpeg_wrapper {dir_k3d}/match --fps 50'
         run_cmd(cmd)
     # TODO: check triangulation
     # run reconstruction
@@ -92,7 +92,7 @@ def mocap_demo(path, mode, exp=None):
         cfg_exp = config.exp
         _config_data = Config.load(cfg_data)
 
-        cmd = f'python3 apps/fit/fit.py --cfg_model {cfg_model} --cfg_data {cfg_data} --cfg_exp {cfg_exp}'
+        cmd = f'python apps/fit/fit.py --cfg_model {cfg_model} --cfg_data {cfg_data} --cfg_exp {cfg_exp}'
 
         # opt data
         output = join(path, 'output-{}'.format(exp))

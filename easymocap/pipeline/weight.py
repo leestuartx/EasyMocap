@@ -6,6 +6,7 @@
   @ FilePath: /EasyMocapRelease/easymocap/pipeline/weight.py
 '''
 def load_weight_shape(model, opts):
+    print('loading weight shape', model)
     if model in ['smpl', 'smplh', 'smplx']:
         weight = {'s3d': 1., 'reg_shapes': 5e-3}
     elif model == 'mano':

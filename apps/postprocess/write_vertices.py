@@ -108,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument('--mode', type=str, default='vertices',
         choices=['vertices', 'keypoints', 'smpljoints', 'mesh'])
     parser.add_argument('--cfg_model', type=str, 
-        default='config/model/smpl_neutral.yml')
+        default='config/model/smpl_male.yml')
     parser.add_argument('--opt_model', type=str, 
         default=[], nargs='+')    
     parser.add_argument('--keypoints', action='store_true')

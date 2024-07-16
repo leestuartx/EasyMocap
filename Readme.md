@@ -21,6 +21,19 @@
 - :tada: EasyMocap v0.2 is released! We support motion capture from Internet videos. Please check the [Quick Start](https://chingswy.github.io/easymocap-public-doc/quickstart/quickstart.html) for more details.
 
 
+A Previewer for SMPL is:
+
+H:\AI\EasyMocap\venv\Scripts\activate
+cd ..
+cd ..
+python apps/vis3d/vis_smpl.py --cfg config/model/smpl.yml
+# test the MANO model - just hands
+python apps/vis3d/vis_smpl.py --cfg config/model/mano.yml
+# test the SMPL+H model
+python apps/vis3d/vis_smpl.py --cfg config/model/smplh.yml
+
+
+
 ---
 
 ## Core features

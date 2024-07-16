@@ -4,6 +4,8 @@
   @ LastEditors: Qing Shuai
   @ LastEditTime: 2021-06-13 17:56:25
   @ FilePath: /EasyMocap/apps/demo/mv1p.py
+
+  Multi View 1 Person
 '''
 from tqdm import tqdm
 from easymocap.smplmodel import check_keypoints, load_model, select_nf

@@ -34,7 +34,7 @@ seqlist = [
 
 from easymocap.bodymodel.smpl import SMPLModel
 body_model = SMPLModel(
-    model_path='data/bodymodels/SMPL_python_v.1.1.0/smpl/models/basicmodel_neutral_lbs_10_207_0_v1.1.0.pkl',
+    model_path='data/bodymodels/SMPL_python_v.1.1.0/smpl/models/basicmodel_m_lbs_10_207_0_v1.1.0.pkl', #basicmodel_neutral_lbs_10_207_0_v1.1.0.pkl',
     device = 'cuda',
     regressor_path = 'data/smplx/J_regressor_body25.npy',
     NUM_SHAPES = 10,

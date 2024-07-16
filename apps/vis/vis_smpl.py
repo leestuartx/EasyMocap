@@ -21,7 +21,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, 
-        default='config/model/smpl_neutral.yml')
+        default='config/model/smpl_male.yml')
     parser.add_argument('--key', type=str, 
         default='poses')
     parser.add_argument('--num', type=int, default=50)

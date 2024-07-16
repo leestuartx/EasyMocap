@@ -104,6 +104,8 @@ def main_entrypoint():
         cfg_exp.args.output = args.out
     out = cfg_exp.args.output
     os.makedirs(out, exist_ok=True)
+
+
     print(cfg_data, file=open(os.path.join(out, 'cfg_data.yml'), 'w'))
     print(cfg_exp, file=open(os.path.join(out, 'cfg_exp.yml'), 'w'))
     

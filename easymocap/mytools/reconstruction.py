@@ -9,12 +9,26 @@
 import numpy as np
 
 def solveZ(A):
+    """Solve a system of linear equations A*X = 0 using SVD."""
     u, s, v = np.linalg.svd(A)
     X = v[-1, :]
     X = X / X[3]
     return X[:3]
 
 def projectN3(kpts3d, Pall):
+    """
+    Project 3D keypoints to 2D using multiple camera matrices.
+
+    Parameters:
+    kpts3d : numpy.ndarray
+        Array of 3D keypoints.
+    Pall : list
+        List of camera matrices.
+
+    Returns:
+    numpy.ndarray
+        Projected 2D keypoints.
+    """
     # kpts3d: (N, 3)
     nViews = len(Pall)
     kp3d = np.hstack((kpts3d[:, :3], np.ones((kpts3d.shape[0], 1))))
@@ -29,11 +43,25 @@ def projectN3(kpts3d, Pall):
     return kp2ds
 
 def simple_reprojection_error(kpts1, kpts1_proj):
+    """
+    Calculate the reprojection error.
+
+    :param kpts1: Original 2D keypoints
+    :param kpts1_proj: Reprojected 2D keypoints
+    :return: Mean squared reprojection error
+    """
     # (N, 3)
     error = np.mean((kpts1[:, :2] - kpts1_proj[:, :2])**2)
     return error
     
 def simple_triangulate(kpts, Pall):
+    """
+    Perform triangulation to get 3D keypoints.
+
+    :param kpts: (nViews, 3)
+    :param Pall: (nViews, 3, 4)
+    :return: 3D keypoints and confidence
+    """
     # kpts: (nViews, 3)
     # Pall: (nViews, 3, 4)
     #   return: kpts3d(3,), conf: float
@@ -50,6 +78,15 @@ def simple_triangulate(kpts, Pall):
     return result
 
 def batch_triangulate(keypoints_, Pall, keypoints_pre=None, lamb=1e3):
+    """
+    Batch triangulation for multiple keypoints.
+
+    :param keypoints_: (nViews, nJoints, 3)
+    :param Pall: (nViews, 3, 4)
+    :param keypoints_pre: Optional, previous keypoints
+    :param lamb: Regularization parameter
+    :return: 3D keypoints
+    """
     # keypoints: (nViews, nJoints, 3)
     # Pall: (nViews, 3, 4)
     # A: (nJoints, nViewsx2, 4), x: (nJoints, 4, 1); b: (nJoints, nViewsx2, 1)
@@ -91,6 +128,13 @@ def batch_triangulate(keypoints_, Pall, keypoints_pre=None, lamb=1e3):
 
 eps = 0.01
 def simple_recon_person(keypoints_use, Puse):
+    """
+    Perform simple 3D reconstruction of a person.
+
+    :param keypoints_use: 2D keypoints
+    :param Puse: Projection matrices
+    :return: 3D keypoints and reprojected keypoints
+    """
     out = batch_triangulate(keypoints_use, Puse)
     # compute reprojection error
     kpts_repro = projectN3(out, Puse)
@@ -100,6 +144,14 @@ def simple_recon_person(keypoints_use, Puse):
     return out, kpts_repro
 
 def check_limb(keypoints3d, limb_means, thres=0.5):
+    """
+    Check limb lengths against predefined means.
+
+    :param keypoints3d: 3D keypoints
+    :param limb_means: Dictionary of limb means and standard deviations
+    :param thres: Threshold for checking limb length
+    :return: Boolean indicating if limb lengths are valid
+    """
     # keypoints3d: (nJ, 4)
     valid = True
     cnt = 0
@@ -112,6 +164,6 @@ def check_limb(keypoints3d, limb_means, thres=0.5):
         if abs(l_est - val['mean'])/val['mean']/val['std'] > thres:
             valid = False
             break
-    # 至少两段骨头可以使用
+    # At least two bones can be used.
     valid = valid and cnt > 2
     return valid

@@ -26,7 +26,7 @@ def download_youtube(vid, outdir):
     log('[Info]: {}'.format(url))
     yt = YouTube(url)
     try:
-        streams = yt.streams
+        streams = yt.streams.filter(progressive=True)
     except KeyError:
         myerror('[Error]: not found streams: {}'.format(url))
         return 1
@@ -34,38 +34,27 @@ def download_youtube(vid, outdir):
         myerror('[Error]: Url error: {}'.format(url))
         return 1
     find = False
-    streams_valid = []
-    res_range = ['2160p', '1440p', '1080p', '720p'] if not args.only4k else ['2160p']
-    if args.no720:
-        res_range.remove('720p')
-    for res in res_range:
-        for fps in [60, 50, 30, 25, 24]:
-            for ext in ['webm', 'mp4']:
-                for stream in streams:
-                    if stream.resolution == res and \
-                       stream.fps == fps and \
-                       stream.mime_type == 'video/{}'.format(ext):
-                       streams_valid.append(stream)
+    streams_valid = streams.all()
+    
     if len(streams_valid) == 0:
         for stream in streams:
             print(stream)
         myerror('[BUG ] Not found valid stream, please check the streams')
         return 0
-    # best_stream = yt.streams.order_by('filesize')[-1]
-    title = streams_valid[0].title
+    
+    # Select the first stream available
+    stream = streams_valid[0]
+    title = stream.title
+    res = stream.resolution
     log('[Info]: {}'.format(title))
-    for stream in streams_valid:
-        res = stream.resolution
-        log('[Info]: The resolution is {}, ext={}'.format(res, stream.mime_type))
-        filename = '{}.{}'.format(vid, stream.mime_type.split('/')[-1])
-        try:
-            stream.download(output_path=outdir, filename=filename, max_retries=0)
-            log('[Info]: Succeed')
-        except:
-            myerror('[BUG ]: Failed')
-            continue
-        break
-
+    log('[Info]: The resolution is {}, ext={}'.format(res, stream.mime_type))
+    filename = '{}.{}'.format(vid, stream.mime_type.split('/')[-1])
+    try:
+        stream.download(output_path=outdir, filename=filename)
+        log('[Info]: Succeed')
+    except:
+        myerror('[BUG ]: Failed')
+        return 1
 
 if __name__ == '__main__':
     import argparse

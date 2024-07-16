@@ -89,7 +89,7 @@ args:
     load_body_model: # 载入身体模型
       module: myeasymocap.io.model.SMPLLoader
       args:
-        model_path: models/pare/data/body_models/smpl/SMPL_NEUTRAL.pkl # load PARE model
+        model_path: models/pare/data/body_models/smpl/SMPL_MALE.pkl # load PARE model
         regressor_path: models/J_regressor_body25.npy
     #   # 这个模块返回两个内容：body_model, model; 其中的body_model是用来进行可视化的
     fitting_each_person:

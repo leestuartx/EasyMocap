@@ -57,7 +57,7 @@ NUM_POSES = {'smpl': 72, 'smplh': 78, 'smplx': 66 + 12 + 9, 'mano': 9}
 NUM_SHAPES = 10
 NUM_EXPR = 10
 class SMPLlayer(nn.Module):
-    def __init__(self, model_path, model_type='smpl', gender='neutral', device=None,
+    def __init__(self, model_path, model_type='smpl', gender='male', device=None,
         regressor_path=None,
         use_pose_blending=True, use_shape_blending=True, use_joints=True,
         with_color=False, use_lbs=True,

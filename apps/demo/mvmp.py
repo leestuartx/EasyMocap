@@ -4,6 +4,8 @@
   @ LastEditors: Qing Shuai
   @ LastEditTime: 2021-06-25 11:52:49
   @ FilePath: /EasyMocapRelease/apps/demo/mvmp.py
+
+  Multiple View Multiple Person
 '''
 from easymocap.dataset import CONFIG
 from easymocap.dataset import CONFIG

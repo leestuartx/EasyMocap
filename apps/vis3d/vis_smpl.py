@@ -186,7 +186,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, 
-        default='config/model/smpl_neutral.yml')
+        default='config/model/smpl_male.yml')
     parser.add_argument('--opts', type=str, 
         default=[], nargs="+")
     

@@ -114,7 +114,7 @@ if __name__ == "__main__":
     mode = args.mode
     if not os.path.exists(join(args.path, 'images')) and os.path.exists(join(args.path, 'videos')):
         # default extract image
-        cmd = f'''python3 apps/preprocess/extract_image.py {args.path}'''
+        cmd = f'''python apps/preprocess/extract_image.py {args.path}'''
         os.system(cmd)
     subs = load_subs(args.path, args.subs)
     if len(args.gpus) != 0:
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         for i in range(nproc):
             if len(subs[i::nproc]) == 0:
                 continue
-            cmd = f'export CUDA_VISIBLE_DEVICES={args.gpus[i]} && python3 apps/preprocess/extract_keypoints.py {args.path} --mode {args.mode} --subs {" ".join(subs[i::nproc])}'
+            cmd = f'export CUDA_VISIBLE_DEVICES={args.gpus[i]} && python apps/preprocess/extract_keypoints.py {args.path} --mode {args.mode} --subs {" ".join(subs[i::nproc])}'
             cmd += f' --annot {args.annot} --ext {args.ext}'
             if args.hand:
                 cmd += ' --hand'

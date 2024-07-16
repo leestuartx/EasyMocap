@@ -33,13 +33,9 @@ def init_location(cam, theta, r):
 
 def init_scene(scene, params, gender='male', angle=0):
     # load fbx model
-    bpy.ops.import_scene.fbx(filepath=join(params['smpl_data_folder'], 'basicModel_%s_lbs_10_207_0_v1.0.2.fbx' % gender[0]), axis_forward='Z', axis_up='Y', global_scale=1)
+    bpy.ops.import_scene.fbx(filepath=join(params['smpl_data_folder'], 'basicModel_%s_lbs_10_207_0_v1.0.2.fbx' % gender[0]), axis_forward='-Y', axis_up='-Z', global_scale=100)
     print('success load')
     obname = '%s_avg' % gender[0]
-    print(obname)
-    print('found')
-    for obj in bpy.data.objects:
-        print(obj.name)
     ob = bpy.data.objects[obname]
     ob.data.use_auto_smooth = False  # autosmooth creates artifacts
 
@@ -74,11 +70,11 @@ def init_scene(scene, params, gender='male', angle=0):
     # setup an empty object in the center which will be the parent of the Camera
     # this allows to easily rotate an object around the origin
     scn.cycles.film_transparent = True
-    view_layer = bpy.context.view_layer
-    view_layer.use_pass_vector = True
-    view_layer.use_pass_normal = True
-    view_layer.use_pass_emit = True
-    view_layer.use_pass_material_index = True
+    bpy.context.view_layer.use_pass_vector = True
+    bpy.context.view_layer.use_pass_normal = True
+    bpy.context.view_layer.use_pass_emit = True
+    bpy.context.view_layer.use_pass_material_index = True
+
 
     # set render size
     # scn.render.resolution_x = params['resy']
@@ -95,64 +91,42 @@ def init_scene(scene, params, gender='male', angle=0):
 
 def setState0():
     for ob in bpy.data.objects.values():
-        ob.select_set(False)
+       ob.select_set(False)
     bpy.context.view_layer.objects.active = None
 
-
+'''
 def Rodrigues(rotvec):
-    try:
-        theta = np.linalg.norm(rotvec)
-        if theta > 0.:
-            r = (rotvec / theta).reshape(3, 1)
-        else:
-            r = rotvec
-        cost = np.cos(theta)
-        mat = np.asarray([[0, -r[2][0], r[1][0]],
-                          [r[2][0], 0, -r[0][0]],
-                          [-r[1][0], r[0][0], 0]])
-        result = cost * np.eye(3) + (1 - cost) * r.dot(r.T) + np.sin(theta) * mat
-        return result
-    except Exception as e:
-        print(f"Debug: Rodrigues function error with rotvec {rotvec}: {e}")
-        raise
-
+    theta = np.linalg.norm(rotvec)
+    r = (rotvec/theta).reshape(3, 1) if theta > 0. else rotvec
+    cost = np.cos(theta)
+    mat = np.asarray([[0, -r[2], r[1]],
+                      [r[2], 0, -r[0]],
+                      [-r[1], r[0], 0]])
+    return(cost*np.eye(3) + (1-cost)*r.dot(r.T) + np.sin(theta)*mat)
+'''
 
 def rodrigues2bshapes(pose):
-    if len(pose) == 72:  # SMPL
+    rod_rots = np.asarray(pose).reshape(24, 3)
+    mat_rots = [Rodrigues(rod_rot) for rod_rot in rod_rots]
+    bshapes = np.concatenate([(mat_rot - np.eye(3)).ravel()
+                              for mat_rot in mat_rots[1:]])
+    return(mat_rots, bshapes)
+
+def rodrigues2bshapes(pose):
+    if pose.shape[0] == 72:  # SMPL
         rod_rots = np.asarray(pose).reshape(24, 3)
-    elif len(pose) == 69:  # SMPL-X without hands and face
+    elif pose.shape[0] == 69:  # SMPL-X without hands and face
         rod_rots = np.asarray(pose).reshape(23, 3)
     else:
-        print(f"Debug: Unexpected pose data length: {len(pose)}")
-        print(f"Debug: Pose data: {pose}")
-        raise ValueError(f"Unsupported pose length: {len(pose)}")
-
-    # Debug: Print the reshaped rod_rots
-    print(f"Debug: Reshaped rod_rots: {rod_rots}")
-
-    mat_rots = []
-    for rod_rot in rod_rots:
-        try:
-            mat_rot = Rodrigues(rod_rot)
-            mat_rots.append(mat_rot)
-        except Exception as e:
-            print(f"Debug: Error processing rod_rot {rod_rot}: {e}")
-            raise
-
-    bshapes = np.concatenate([(mat_rot - np.eye(3)).ravel() for mat_rot in mat_rots[1:]])
-
+        raise ValueError(f"Unsupported pose length: {pose.shape[0]}")
+    mat_rots = [Rodrigues(rod_rot) for rod_rot in rod_rots]
+    bshapes = np.concatenate([(mat_rot - np.eye(3)).ravel()
+                              for mat_rot in mat_rots[1:]])
     return mat_rots, bshapes
 
-    return mat_rots, bshapes
+'''
 # apply trans pose and shape to character
 def apply_trans_pose_shape(trans, pose, shape, ob, arm_ob, obname, scene, cam_ob, frame=None):
-    # Debug: Check the length and contents of pose data
-    pose_length = len(pose)
-    print(f"Debug: Length of pose data: {pose_length}")
-    if pose_length != 72:
-        print(f"Debug: Unexpected pose data length: {pose_length}")
-        print(f"Debug: Pose data: {pose}")
-
     # transform pose into rotation matrices (for pose) and pose blendshapes
     mrots, bsh = rodrigues2bshapes(pose)
 
@@ -181,6 +155,38 @@ def apply_trans_pose_shape(trans, pose, shape, ob, arm_ob, obname, scene, cam_ob
         if frame is not None:
             ob.data.shape_keys.key_blocks['Shape%03d' % ibshape].keyframe_insert(
                 'value', index=-1, frame=frame)
+'''
+
+
+def apply_trans_pose_shape(trans, pose, shape, ob, arm_ob, obname, scene, cam_ob, frame=None):
+    mrots, bsh = rodrigues2bshapes(pose)
+
+    # set the location of the first bone to the translation parameter
+    arm_ob.pose.bones[obname + '_Pelvis'].location = trans
+    arm_ob.pose.bones[obname + '_root'].location = trans
+    arm_ob.pose.bones[obname + '_root'].keyframe_insert('location', frame=frame)
+
+    for ibone, mrot in enumerate(mrots):
+        if ibone < len(part_match):
+            bone = arm_ob.pose.bones[obname + '_' + part_match[f'bone_{ibone:02d}']]
+            bone.rotation_quaternion = Matrix(mrot).to_quaternion()
+            if frame is not None:
+                bone.keyframe_insert('rotation_quaternion', frame=frame)
+                bone.keyframe_insert('location', frame=frame)
+
+    for ibshape, bshape in enumerate(bsh):
+        ob.data.shape_keys.key_blocks[f'Pose{ibshape:03d}'].value = bshape
+        if frame is not None:
+            ob.data.shape_keys.key_blocks[f'Pose{ibshape:03d}'].keyframe_insert(
+                'value', index=-1, frame=frame)
+
+    for ibshape, shape_elem in enumerate(shape):
+        ob.data.shape_keys.key_blocks[f'Shape{ibshape:03d}'].value = shape_elem
+        if frame is not None:
+            ob.data.shape_keys.key_blocks[f'Shape{ibshape:03d}'].keyframe_insert(
+                'value', index=-1, frame=frame)
+
+
 import os
 import json
 
@@ -188,11 +194,13 @@ def read_json(path):
     with open(path) as f:
         data = json.load(f)
     return data
-
+    
 def read_smpl(outname):
     assert os.path.exists(outname), outname
     datas = read_json(outname)
     outputs = []
+    if isinstance(datas, dict):
+        datas = datas['annots']
     for data in datas:
         for key in ['Rh', 'Th', 'poses', 'shapes']:
             data[key] = np.array(data[key])
@@ -227,7 +235,7 @@ def load_motions(path):
         motions[pid] = merge_params(motions[pid])
         motions[pid]['poses'][:, :3] = motions[pid]['Rh']
     return motions
-
+    
 def load_smpl_params(datapath):
     motions = load_motions(datapath)
     return motions
@@ -244,7 +252,7 @@ def main(params):
     for k in ob.data.shape_keys.key_blocks.keys():
         bpy.data.shape_keys["Key"].key_blocks[k].slider_min = -10
         bpy.data.shape_keys["Key"].key_blocks[k].slider_max = 10
-
+    
     bpy.context.view_layer.objects.active = arm_ob
 
     motions = load_smpl_params(params['path'])
@@ -278,7 +286,7 @@ if __name__ == '__main__':
             parser.add_argument('--out', dest='out', type=str, required=True,
                 help='Output file or directory')
             parser.add_argument('--smpl_data_folder', type=str,
-                default='./data/smplx/SMPL_maya',
+                default='./data/smplx/SMPLXmaya',
                 help='Output file or directory')
             parser.add_argument('--gender', type=str,
                 default='male')

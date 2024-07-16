@@ -4,6 +4,8 @@
   @ LastEditors: Qing Shuai
   @ LastEditTime: 2021-06-14 15:31:48
   @ FilePath: /EasyMocap/apps/demo/mv1p_mirror.py
+
+  Multi View 1 Person Mirror
 '''
 import os
 from os.path import join
