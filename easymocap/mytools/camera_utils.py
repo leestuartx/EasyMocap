@@ -194,12 +194,17 @@ class Undistort:
     distortMap = {}
     @classmethod
     def image(cls, frame, K, dist, sub=None, interp=cv2.INTER_NEAREST):
+        # Debugging
+        print(f"Debug: K: {K}")
+        print(f"Debug: dist: {dist}")
+        print(f"Debug: frame.shape: {frame.shape}")
+
         if sub is None:
             return cv2.undistort(frame, K, dist, None)
         else:
             if sub not in cls.distortMap.keys():
-                h,  w = frame.shape[:2]
-                mapx, mapy = cv2.initUndistortRectifyMap(K, dist, None, K, (w,h), 5)
+                h, w = frame.shape[:2]
+                mapx, mapy = cv2.initUndistortRectifyMap(K, dist, None, K, (w, h), 5)
                 cls.distortMap[sub] = (mapx, mapy)
             mapx, mapy = cls.distortMap[sub]
             img = cv2.remap(frame, mapx, mapy, interp)

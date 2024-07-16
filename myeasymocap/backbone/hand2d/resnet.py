@@ -10,8 +10,12 @@ import os.path as osp
 import torch
 import torch.nn as nn
 from torchvision.models.resnet import BasicBlock, Bottleneck
-from torchvision.models.resnet import model_urls
+#from torchvision.models._utils import model_urls
 from ..basetopdown import get_preds_from_heatmaps
+
+model_urls = {
+    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
+}
 
 def make_conv_layers(feat_dims, kernel=3, stride=1, padding=1, bnrelu_final=True):
     layers = []

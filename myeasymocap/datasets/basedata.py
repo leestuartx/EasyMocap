@@ -78,8 +78,9 @@ def read_mv_images(root, root_images, ext, subs):
     log(f'Found {len(subs)} subjects in {root}/{root_images}')
     for sub in subs:
         print('sub', sub)
-        images = sorted(os.listdir(os.path.join(root, root_images)))
-        images = [os.path.join(root, root_images, image) for image in images if image.endswith(ext)]
+
+        images = sorted(os.listdir(os.path.join(root, root_images, sub)))
+        images = [os.path.join(root, root_images, sub, image) for image in images if image.endswith(ext)]
         log(f'  -> Found {len(images)} {root_images} in {sub}.')
         imagelists.append(images)
     min_length = min([len(image) for image in imagelists])

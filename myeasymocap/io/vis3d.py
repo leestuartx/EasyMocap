@@ -57,7 +57,12 @@ class Render_multiview(VisBase):
             vis = cv2.imread(imgname[nv])
             # undistort the images
             if cameras['dist'] is not None:
-                vis = Undistort.image(vis, cameras['K'][nv], cameras['dist'][nv], sub=os.path.basename(os.path.dirname(imgname[nv])))
+                # Debugging
+                print(f"Debug: imgname[nv]: {imgname[nv]}")
+                print(f"Debug: K.shape: {cameras['K'][nv].shape}")
+                print(f"Debug: dist.shape: {cameras['dist'][nv].shape}")
+                vis = Undistort.image(vis, cameras['K'][nv], cameras['dist'][nv],
+                                      sub=os.path.basename(os.path.dirname(imgname[nv])))
             vis = cv2.resize(vis, None, fx=self.scale3d, fy=self.scale3d)
             meshes = {}
             if vert.ndim == 2:
@@ -85,18 +90,18 @@ class Render_multiview(VisBase):
             if self.render_mode == 'ground':
                 from easymocap.visualize.geometry import create_ground
                 ground = create_ground(
-                    center=[0, 0, -0.05], xdir=[1, 0, 0], ydir=[0, 1, 0], # 位置
-                    step=1, xrange=10, yrange=10, # 尺寸
-                    white=[1., 1., 1.], black=[0.5,0.5,0.5], # 颜色
+                    center=[0, 0, -0.05], xdir=[1, 0, 0], ydir=[0, 1, 0],  # 位置
+                    step=1, xrange=10, yrange=10,  # 尺寸
+                    white=[1., 1., 1.], black=[0.5, 0.5, 0.5],  # 颜色
                     two_sides=True
                 )
                 meshes[1001] = ground
                 vis = np.zeros((self.shape[0], self.shape[1], 3), dtype=np.uint8) + 255
                 focal = min(self.shape) * 1.2
                 K = np.array([
-                    [focal,0,vis.shape[0]/2],
-                    [0,focal,vis.shape[1]/2],
-                    [0,0,1]])
+                    [focal, 0, vis.shape[0] / 2],
+                    [0, focal, vis.shape[1] / 2],
+                    [0, 0, 1]])
                 ret = plot_meshes(vis, meshes, K, R, T, mode='rgb')
             else:
                 ret = plot_meshes(vis, meshes, K, R, T, mode=self.render_mode)
